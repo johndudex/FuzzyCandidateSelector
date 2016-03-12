@@ -5,31 +5,71 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.EmptyBorder;
 
-public class ScoreCard extends JFrame {
+public class ScoreCard extends JFrame  {
 
 	private JPanel contentPane;
 	JTextField Text[]=new JTextField[22];
 	JTextField Text1[]=new JTextField[5];
+	static ScoreCard frm;
+	
+	int edit=0;
+	String Query1="",Query2="";
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		
+		
+		try {
+		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+		        if ("Nimbus".equals(info.getName())) {
+		        	
+		        	 UIManager.setLookAndFeel("com.seaglasslookandfeel.SeaGlassLookAndFeel");
+		        	
+		        	// UIManager.setLookAndFeel(info.getClassName());
+		            break;
+		        }
+		    }
+		} catch (Exception e) {
+		    // If Nimbus is not available, you can set the GUI to another look and feel.
+		}
+		
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					
 					ScoreCard frame = new ScoreCard();
 					frame.setVisible(true);
+					frm=frame;
+					frame.addWindowStateListener(new WindowStateListener() {
+						
+						@Override
+						public void windowStateChanged(WindowEvent e) {
+							frm.setBounds(0, 0, 900, 720);
+							
+						}
+					});
 					frame.setResizable(false);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -42,8 +82,17 @@ public class ScoreCard extends JFrame {
 	 * Create the frame.
 	 */
 	public ScoreCard() {
+		addWindowStateListener(new WindowStateListener() {
+			
+			@Override
+			public void windowStateChanged(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				setBounds(0, 0, 900, 720);
+			}
+		});;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(0, 0, 900, 720);
+		//setResizable(false);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
@@ -67,7 +116,7 @@ public class ScoreCard extends JFrame {
 		ToolbarBottom.setLayout(null);
 		ToolbarBottom.setBackground(Color.gray);
 		
-		JButton submit=new JButton("Submit");
+		final JButton submit=new JButton("Edit");
 		ToolbarBottom.add(submit);
 		submit.setBounds(415,0,100,30);
 		
@@ -79,6 +128,7 @@ public class ScoreCard extends JFrame {
         contentPane.setLayout(null);
         
         Text1[0]=new JTextField();
+        Text1[0].setBackground(Color.YELLOW);
 		contentPane.add(Text1[0]);
 		Text1[0].setBounds(350, 50, 30, 20);
 		
@@ -136,6 +186,7 @@ public class ScoreCard extends JFrame {
         contentPane.setLayout(null);
         
         Text1[1]=new JTextField();
+        Text1[1].setBackground(Color.YELLOW);
 		contentPane.add(Text1[1]);
 		Text1[1].setBounds(350, 250, 30, 20);
 		
@@ -199,7 +250,8 @@ public class ScoreCard extends JFrame {
         contentPane.setLayout(null);
         
         Text1[2]=new JTextField();
-		contentPane.add(Text1[2]);
+        Text1[2].setBackground(Color.YELLOW);
+        contentPane.add(Text1[2]);
 		Text1[2].setBounds(350, 490, 30, 20);
 		
         
@@ -250,7 +302,8 @@ public class ScoreCard extends JFrame {
         contentPane.setLayout(null);
         
         Text1[3]=new JTextField();
-		contentPane.add(Text1[3]);
+        Text1[3].setBackground(Color.YELLOW);
+        contentPane.add(Text1[3]);
 		Text1[3].setBounds(830, 45, 30, 20);
 		
         
@@ -301,7 +354,8 @@ public class ScoreCard extends JFrame {
         contentPane.setLayout(null);
         
         Text1[4]=new JTextField();
-		contentPane.add(Text1[4]);
+        Text1[4].setBackground(Color.YELLOW);
+        contentPane.add(Text1[4]);
 		Text1[4].setBounds(830, 245, 30, 20);
 		
         
@@ -346,17 +400,63 @@ public class ScoreCard extends JFrame {
         
        
        
-       
+       // fill the form with the database entries 
+		for(int i=0;i<21;i++)
+			Text[i].enable(false);
+		for(int i=0;i<5;i++)
+			Text1[i].enable(false);
+		FillForm();
+		
+		
         
+		
+		
+		
+		
+		
         
       submit.addActionListener(new ActionListener() {
 		
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			
-			// validating entries in the form 
-			if(FormValidate())
-				System.out.println("true");
+			// validating entries in the form and Executing the Sql Query 
+			if(edit==0){
+				submit.setText("Submit");
+				FillForm();
+				for(int i=0;i<21;i++)
+					Text[i].enable(true);
+				for(int i=0;i<5;i++)
+					Text1[i].enable(true);
+				edit=1;
+			}
+			else{
+			if(FormValidate()){
+				int i;
+			for(i=0;i<20;i++)
+				Query1="UPDATE sub_criteria set a="+Text[0].getText()+
+						",b="+Text[1].getText()+",c="+Text[2].getText()+
+						",d="+Text[3].getText()+",e="+Text[4].getText()+
+						",f="+Text[5].getText()+",g="+Text[6].getText()+
+						",h="+Text[7].getText()+",i="+Text[8].getText()+
+						",j="+Text[9].getText()+",k="+Text[10].getText()+
+						",l="+Text[11].getText()+",m="+Text[12].getText()+
+						",n="+Text[13].getText()+",o="+Text[14].getText()+
+						",p="+Text[15].getText()+",q="+Text[16].getText()+
+						",r="+Text[17].getText()+",s="+Text[18].getText()+
+						",t="+Text[19].getText()+",u="+Text[20].getText()+ " where 1";
+			
+				Connection con =DataManager.getConnection();
+				if(DataManager.updateData(Query1, con))
+					JOptionPane.showMessageDialog(frm, "Updated Succesfully");
+					ScoreCard sc=new ScoreCard();
+					sc.setResizable(false);
+					sc.setVisible(true);
+					dispose();
+			}
+			else 
+				System.out.println("false");
+			}
 		}
 
 		
@@ -364,38 +464,60 @@ public class ScoreCard extends JFrame {
 		
 		
 		private boolean FormValidate() {
+			try {
 			int sum=0,i,j;
-			for(i=0;i<4;i++)
+			for(i=0;i<4;i++){
 				sum+=Integer.parseInt(Text[i].getText());
-			if(sum!=100)
+				
+			}
+			if(sum!=100){
+				JOptionPane.showMessageDialog(frm, "The Sum of HumanSkill and Qualification should be equal to 100");
 				return false;
+			}
 			sum=0;
-			for(j=i;j<=9;j++)
+			for(j=i;j<=8;j++)
 				sum+=Integer.parseInt(Text[j].getText());
-			if(sum!=125)
+			if(sum!=100){
+				JOptionPane.showMessageDialog(frm, "The Sum of GeneralSkill should be equal to 100");
 				return false;
-			
+			}
 			sum=0;
-			for(i=j;i<=13;i++)
+			for(i=j;i<=12;i++)
 				sum+=Integer.parseInt(Text[i].getText());
-			if(sum!=100)
+			if(sum!=100){
+				JOptionPane.showMessageDialog(frm, "The Sum of Urban Stratergies should be equal to 100");
 				return false;
-			
+			}
 			sum=0;
-			for(j=i;j<=17;j++)
+			for(j=i;j<=16;j++)
 				sum+=Integer.parseInt(Text[j].getText());
-			if(sum!=100)
+			if(sum!=100){
+				JOptionPane.showMessageDialog(frm, "The Sum of Personal Characteristics should be equal to 100");
 				return false;
-			
+			}
 			sum=0;
-			for(i=j;i<=21;i++)
+			for(i=j;i<=20;i++)
 				sum+=Integer.parseInt(Text[i].getText());
-			if(sum!=100)
+			if(sum!=100){
+				JOptionPane.showMessageDialog(frm, "The Sum of Interraction Skills should be equal to 100");
 				return false;
+			}
+			sum=0;
+			for(i=0;i<5;i++)
+				sum+=Integer.parseInt(Text1[i].getText());
+				if(sum!=100){
+					JOptionPane.showMessageDialog(frm, "The Sum of All the Skills should be 100");
+					return false;
+				}
+				
+				return true;
+			}catch(NumberFormatException e)
+			{
+				JOptionPane.showMessageDialog(frm, "Some of the Entries Filled are not Numbers Or Some of the Entries are not Filled!! ");
+			}
 			
-			return true;
 			
-			
+			return false;
 		}
 	});
         
@@ -431,6 +553,30 @@ public class ScoreCard extends JFrame {
         
 		
 		
+		
+	}
+
+	private void FillForm() {
+		Connection con =DataManager.getConnection();
+		ResultSet rs=DataManager.retrieveData("select *from sub_criteria", con);
+		ResultSet rs1=DataManager.retrieveData("select *from criteria", con);
+		try {
+			while (rs.next())
+			{
+				for(int i=0;i<21;i++){
+					Text[i].setText(rs.getString(i+1));
+					}
+			}
+			while (rs1.next())
+			{
+				for(int i=0;i<5;i++){
+					Text1[i].setText(rs1.getString(i+1));
+					}
+			}
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 	}
 

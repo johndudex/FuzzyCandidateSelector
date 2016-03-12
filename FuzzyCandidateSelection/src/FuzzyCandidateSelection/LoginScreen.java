@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,6 +31,7 @@ public class LoginScreen extends JFrame {
 	JRadioButton comm=new JRadioButton("Rating Committee");
 	ButtonGroup loginGroup=new ButtonGroup();
 	JLabel Status=new JLabel("");
+	static LoginScreen frm;
 	
 
 	/**
@@ -40,9 +43,10 @@ public class LoginScreen extends JFrame {
 		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 		        if ("Nimbus".equals(info.getName())) {
 		        	
+		        	UIManager.setLookAndFeel("com.seaglasslookandfeel.SeaGlassLookAndFeel");
 
 
-		        	 UIManager.setLookAndFeel(info.getClassName());
+		        	//UIManager.setLookAndFeel(info.getClassName());
 		            break;
 		        }
 		    }
@@ -56,6 +60,15 @@ public class LoginScreen extends JFrame {
 					LoginScreen frame = new LoginScreen();
 					frame.getContentPane().setLayout(null);
 					frame.setVisible(true);
+					frm=frame;
+					frame.addWindowStateListener(new WindowStateListener() {
+						
+						@Override
+						public void windowStateChanged(WindowEvent e) {
+							frm.setBounds(100, 100, 650, 400);
+							
+						}
+					});
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -93,6 +106,7 @@ public class LoginScreen extends JFrame {
 		LoginPanel.add(Usrname);
 		
 		final JTextField Username =new JTextField();
+		
 		Username.setBounds(120,10,170,30);
 		LoginPanel.add(Username);
 		

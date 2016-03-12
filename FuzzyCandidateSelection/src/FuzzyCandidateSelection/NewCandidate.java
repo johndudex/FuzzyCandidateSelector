@@ -6,6 +6,8 @@ import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -50,14 +52,14 @@ public class NewCandidate extends JFrame {
 		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 		        if ("Nimbus".equals(info.getName())) {
 		        	
+		        	 UIManager.setLookAndFeel("com.seaglasslookandfeel.SeaGlassLookAndFeel");
 
-
-		        	 UIManager.setLookAndFeel(info.getClassName());
+		        	
 		            break;
 		        }
 		    }
 		} catch (Exception e) {
-		    // If Nimbus is not available, you can set the GUI to another look and feel.
+			 
 		}
 		
 		EventQueue.invokeLater(new Runnable() {
@@ -67,6 +69,18 @@ public class NewCandidate extends JFrame {
 					frame.setVisible(true);
 					frame.setResizable(false);
 					frm=frame;
+					frame.addWindowStateListener(new WindowStateListener() {
+						
+						@Override
+						public void windowStateChanged(WindowEvent e) {
+							// TODO Auto-generated method stub
+							frm.setBounds(100, 100, 750, 500);
+							frm.setResizable(false);
+						}
+					});
+					
+					
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
